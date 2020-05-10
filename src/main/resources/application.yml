@@ -7,4 +7,7 @@ spring:
   mvc:
     static-path-pattern: /image/**
   resources:
-    static-locations: file:D://2020/my-articles/pic
+    # 本地
+    #static-locations: file:D://2020/my-articles/pic
+    # 线上 /export/github/lss/pic
+    static-locations: file:/export/github/lss/pic
