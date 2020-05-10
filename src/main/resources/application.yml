@@ -1,0 +1,10 @@
+server:
+  port: 80
+
+
+
+spring:
+  mvc:
+    static-path-pattern: /image/**
+  resources:
+    static-locations: file:D://2020/my-articles/pic
