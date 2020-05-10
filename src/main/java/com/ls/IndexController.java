@@ -13,6 +13,8 @@ public class IndexController {
 
     @GetMapping("/")
     public String index(){
-        return "index";
+        String current = "current:" + System.currentTimeMillis();
+        System.out.println(current);
+        return current;
     }
 }
