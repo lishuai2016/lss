@@ -120,8 +120,57 @@ spring-mvc.xml文件的
 
 
 
+- [Spring内核设计思想](https://blog.csdn.net/u010349169/column/info/17824)
 
 
+spring相关技术文章列表
+
+> 基础&原理
+
+- [spring基础知识汇总](./spring基础知识汇总.md)
+
+- [spring5的体系架构](./spring5的体系架构.md)
+
+- [AOP设计基本原理(重要)](./设计思想-AOP设计基本原理.md)
+
+- [AOP实现原理(基于JDK和基于CGLIB)](./设计思想-AOP实现原理(基于JDK和基于CGLIB).md)
+
+- [spring事务详解](./spring事务详解.md)
+
+- [Spring中的XMLschema扩展机制](./Spring中的XMLschema扩展机制.md)
+
+
+> 源码分析系列
+
+- [spring5本地源码环境搭建](./spring5本地源码环境搭建.md)
+
+- [spring源码-系统核心结构图](./spring源码-系统核心结构图.md)
+
+- [SpringMVC-01-整体介绍](./SpringMVC-01-整体介绍.md)
+
+
+
+
+
+
+
+> 优秀spring相关文章
+
+- [Spring IOC 容器源码分析---对spring部分源码解析的很不错，推荐](https://javadoop.com/post/spring-ioc)
+
+- [15个经典的Spring面试常见问题](https://mp.weixin.qq.com/s/uVoeXRLNEMK8c00u3tm9KA)
+
+- [sprig面试题](http://svip.iocoder.cn/Spring/Interview/)
+
+- [田小波-spring源码解读（觉得文章思路不错）](http://www.tianxiaobo.com/categories/java-framework/spring/)
+
+- [仿写spring](https://github.com/code4craft/tiny-spring)
+
+- [自己动手实现的 Spring IOC 和 AOP - 上篇](http://www.tianxiaobo.com/2018/01/18/%E8%87%AA%E5%B7%B1%E5%8A%A8%E6%89%8B%E5%AE%9E%E7%8E%B0%E7%9A%84-Spring-IOC-%E5%92%8C-AOP-%E4%B8%8A%E7%AF%87/)
+
+- [自己动手实现的-Spring-IOC-和-AOP-下篇](http://www.tianxiaobo.com/2018/01/18/%E8%87%AA%E5%B7%B1%E5%8A%A8%E6%89%8B%E5%AE%9E%E7%8E%B0%E7%9A%84-Spring-IOC-%E5%92%8C-AOP-%E4%B8%8B%E7%AF%87/)
+
+- [静态代理、JDK动态代理、CGLIB动态代理讲解---很简单的demo颜色怎么使用](https://www.cnblogs.com/puyangsky/p/6218925.html)
 
 
 

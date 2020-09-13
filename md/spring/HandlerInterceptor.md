@@ -1,15 +1,20 @@
----
-title: Markdown语法总结
-categories: 
-- spring
-tags:
----
+
+
+<!-- TOC -->
+
+- [HandlerInterceptor](#handlerinterceptor)
+    - [0、HandlerInterceptor拦截器接口](#0handlerinterceptor拦截器接口)
+    - [1、MappedInterceptor该类不可以再被继承（是用来判断请求符不符合拦截的条件）](#1mappedinterceptor该类不可以再被继承是用来判断请求符不符合拦截的条件)
+
+<!-- /TOC -->
+
 
 # HandlerInterceptor
 
 
 
 ## 0、HandlerInterceptor拦截器接口
+
 ```java
 public interface HandlerInterceptor {
 
@@ -41,7 +46,8 @@ default void afterCompletion(HttpServletRequest request, HttpServletResponse res
 
 
 ##1、MappedInterceptor该类不可以再被继承（是用来判断请求符不符合拦截的条件）
-（装饰器设计模式：实现共同的接口，包含，并且包含被装饰者的实例，通过构造函数导入）
+
+装饰器设计模式：实现共同的接口，包含，并且包含被装饰者的实例，通过构造函数导入
 
 ```java
 public final class MappedInterceptor implements HandlerInterceptor {

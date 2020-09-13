@@ -1,6 +1,20 @@
-# LockSupport
 
-Doug Lea 的神作concurrent包是基于AQS (AbstractQueuedSynchronizer)框架，AQS框架借助于两个类：Unsafe(提供CAS操作)和LockSupport(提供park/unpark操作)。因此，LockSupport可谓构建concurrent包的基础之一。理解concurrent包，就从这里开始。
+<!-- TOC -->
+
+    - [1、两个重点](#1两个重点)
+        - [1、操作对象](#1操作对象)
+        - [2、关于许可](#2关于许可)
+    - [2、源码](#2源码)
+        - [1、pack时](#1pack时)
+        - [2、unpack时](#2unpack时)
+        - [3、与Object类的wait/notify机制相比，park/unpark有两个优点：](#3与object类的waitnotify机制相比parkunpark有两个优点)
+    - [3、Unsafe.park和Unsafe.unpark的底层实现原理](#3unsafepark和unsafeunpark的底层实现原理)
+- [参考](#参考)
+
+<!-- /TOC -->
+
+
+Doug Lea 的神作concurrent包是基于AQS (AbstractQueuedSynchronizer)框架，AQS框架借助于两个类：Unsafe(提供CAS操作)和LockSupport(提供park/unpark操作)。因此，LockSupport可谓构建concurrent包的基础之一。
 
 
 ## 1、两个重点

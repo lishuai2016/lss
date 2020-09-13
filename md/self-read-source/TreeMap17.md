@@ -1,6 +1,30 @@
 
 
-底层实现红黑树
+<!-- TOC -->
+
+- [1、SortedMap](#1sortedmap)
+- [2、NavigableMap](#2navigablemap)
+- [3、TreeMap](#3treemap)
+    - [1、Entry保存key-value值](#1entry保存key-value值)
+    - [2、PrivateEntryIterator](#2privateentryiterator)
+    - [3、EntryIterator](#3entryiterator)
+    - [4、EntrySet](#4entryset)
+    - [5、KeyIterator](#5keyiterator)
+    - [6、ValueIterator](#6valueiterator)
+- [4、常用方法](#4常用方法)
+    - [1、插入](#1插入)
+    - [2、删除](#2删除)
+    - [3、查找](#3查找)
+    - [4、遍历](#4遍历)
+- [参考](#参考)
+
+<!-- /TOC -->
+
+
+
+
+
+备注：`treemap底层数据结构通过红黑树实现`
 
 ![](../../pic/2020-04-05-14-29-07.png)
 
@@ -138,6 +162,7 @@ public TreeMap(SortedMap<K, ? extends V> m) {
 //主要分为两个步骤，第一：构建排序二叉树，第二：平衡二叉树。
 public V put(K key, V value) {
     Entry<K,V> t = root;
+    //放如整棵树的第一个节点
     if (t == null) {
         compare(key, key); // type (and possibly null) check这个函数的功能仅仅是null和类型检测
 
@@ -146,11 +171,11 @@ public V put(K key, V value) {
         modCount++;
         return null;
     }
-    int cmp;
+    int cmp;//比较的结果，用于定位在插入左子树还是右子树
     Entry<K,V> parent;
-    // split comparator and comparable paths 根据是否设置了比较器分为两条路径处理
+    // split comparator and comparable paths 根据是否设置了自定义比较器分为两条路径处理
     Comparator<? super K> cpr = comparator;
-    if (cpr != null) {
+    if (cpr != null) {//自定义了比较器
         do {
             parent = t;//保存父节点
             cmp = cpr.compare(key, t.key);//当前key比较小，朝向左子树
@@ -550,9 +575,9 @@ Iterator<K> descendingKeyIterator() {
 ```
 
 
-## 1、Entry
+## 1、Entry保存key-value值
 
-实现了Map.Entry<K,V>接口，定义为一个红黑树节点
+实现了Map.Entry<K,V>接口，定义为一个红黑树节点。对比普通的map节点，这里多个三个指针left、right和parent，分别指向左右孩子和父节点。
 
 ```java
     static final class Entry<K,V> implements Map.Entry<K,V> {

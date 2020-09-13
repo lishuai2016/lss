@@ -59,6 +59,10 @@
 
 <!-- /TOC -->
 
+
+备注：基于极客时间课件整理https://github.com/geektime-geekbang/geekbang-zk-course
+
+
 > 目录
 
 - 1.ZooKeeper 基础:ZooKeeper 的安装配置 ZooKeeper 的基本概念和 zkCli.sh 的使用 为后面的学习打好基础 。

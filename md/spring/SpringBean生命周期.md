@@ -3,17 +3,18 @@ Spring Bean 生命周期
 <!-- TOC -->
 
 - [前言](#前言)
-- [注解方式](#注解方式)
-- [InitializingBean, DisposableBean 接口](#initializingbean-disposablebean-接口)
-- [自定义初始化和销毁方法](#自定义初始化和销毁方法)
-- [实现 *Aware 接口](#实现-aware-接口)
-- [BeanPostProcessor 增强处理器](#beanpostprocessor-增强处理器)
+- [1、注解方式@PostConstruct\@PreDestroy](#1注解方式postconstruct\predestroy)
+- [2、InitializingBean, DisposableBean 接口](#2initializingbean-disposablebean-接口)
+- [3、自定义初始化和销毁方法](#3自定义初始化和销毁方法)
+- [4、实现 *Aware 接口](#4实现-aware-接口)
+- [5、BeanPostProcessor 增强处理器](#5beanpostprocessor-增强处理器)
 
 <!-- /TOC -->
 
 
 
 # 前言
+
 Spring Bean 的生命周期在整个 Spring 中占有很重要的位置，掌握这些可以加深对 Spring 的理解。
 
 首先看下生命周期图：
@@ -25,11 +26,11 @@ Spring Bean 的生命周期在整个 Spring 中占有很重要的位置，掌握
 
 Spring 只帮我们管理单例模式 Bean 的完整生命周期，对于 prototype 的 bean ，Spring 在创建好交给使用者之后则不会再管理后续的生命周期。
 
-# 注解方式
+# 1、注解方式@PostConstruct\@PreDestroy
 
 在 bean 初始化时会经历几个阶段，首先可以使用注解 @PostConstruct, @PreDestroy 来在 bean 的创建和销毁阶段进行调用:
 
-```
+```java
 @Component
 public class AnnotationBean {
     private final static Logger LOGGER = LoggerFactory.getLogger(AnnotationBean.class);
@@ -48,11 +49,11 @@ public class AnnotationBean {
 ```
 
 
-# InitializingBean, DisposableBean 接口
+# 2、InitializingBean, DisposableBean 接口
 
 还可以实现 InitializingBean,DisposableBean 这两个接口，也是在初始化以及销毁阶段调用：
 
-```
+```java
 @Service
 public class SpringLifeCycleService implements InitializingBean,DisposableBean{
     private final static Logger LOGGER = LoggerFactory.getLogger(SpringLifeCycleService.class);
@@ -69,11 +70,11 @@ public class SpringLifeCycleService implements InitializingBean,DisposableBean{
 
 ```
 
-# 自定义初始化和销毁方法
+# 3、自定义初始化和销毁方法
 
 也可以自定义方法用于在初始化、销毁阶段调用:
 
-```
+```java
 @Configuration
 public class LifeCycleConfig {
 
@@ -106,11 +107,11 @@ public class SpringLifeCycle{
 
 ```
 
-# 实现 *Aware 接口
+# 4、实现 *Aware 接口
 
 *Aware 接口可以用于在初始化 bean 时获得 Spring 中的一些对象，如获取 Spring 上下文等。
 
-```
+```java
 @Component
 public class SpringLifeCycleAware implements ApplicationContextAware {
     private final static Logger LOGGER = LoggerFactory.getLogger(SpringLifeCycleAware.class);
@@ -128,11 +129,11 @@ public class SpringLifeCycleAware implements ApplicationContextAware {
 
 这样在 springLifeCycleAware 这个 bean 初始化会就会调用 setApplicationContext 方法，并可以获得 applicationContext 对象。
 
-# BeanPostProcessor 增强处理器
+# 5、BeanPostProcessor 增强处理器
 
 实现 BeanPostProcessor 接口，Spring 中所有 bean 在做初始化时都会调用该接口中的两个方法，可以用于对一些特殊的 bean 进行处理：
 
-```
+```java
 @Component
 public class SpringLifeCycleProcessor implements BeanPostProcessor {
     private final static Logger LOGGER = LoggerFactory.getLogger(SpringLifeCycleProcessor.class);

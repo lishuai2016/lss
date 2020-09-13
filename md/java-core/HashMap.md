@@ -96,10 +96,3 @@ index =  HashCode（Key） % Length ?
 # 5、在java8中，hashmap的结构有什么样的变化？
 
 
-
-
-
-
-
-
-

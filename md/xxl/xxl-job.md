@@ -33,6 +33,17 @@
     - [7、最近最久未使用ExecutorRouteLRU](#7最近最久未使用executorroutelru)
     - [8、故障转移ExecutorRouteFailover](#8故障转移executorroutefailover)
     - [9、忙碌转移ExecutorRouteBusyover](#9忙碌转移executorroutebusyover)
+- [5、执行器的注册](#5执行器的注册)
+    - [1、执行器的注册](#1执行器的注册)
+    - [2、执行器注册移除](#2执行器注册移除)
+    - [3、JobRegistryMonitorHelper后台线程对执行器的注册信息进行更新(依据执行器注册的心跳间隔时间执行一次30秒一次)](#3jobregistrymonitorhelper后台线程对执行器的注册信息进行更新依据执行器注册的心跳间隔时间执行一次30秒一次)
+        - [1、从xxl_job_group拿到自动注册（address_type=0）的执行器列表；](#1从xxl_job_group拿到自动注册address_type0的执行器列表)
+        - [2、从xxl_job_registry中获取3倍心跳（90秒）没有进行心跳更新的，然后进行删除](#2从xxl_job_registry中获取3倍心跳90秒没有进行心跳更新的然后进行删除)
+        - [3、查询表xxl_job_registry近90秒内有更新的注册信息](#3查询表xxl_job_registry近90秒内有更新的注册信息)
+- [6、任务的失败重试和报警逻辑](#6任务的失败重试和报警逻辑)
+    - [1、查询失败的任务](#1查询失败的任务)
+    - [2、锁定日志](#2锁定日志)
+    - [3、基于日志id找到jobid，然后查询出具体的job配置信息，查看是否配置失败重试然后进行失败重试](#3基于日志id找到jobid然后查询出具体的job配置信息查看是否配置失败重试然后进行失败重试)
 - [参考](#参考)
 
 <!-- /TOC -->
@@ -383,6 +394,21 @@ select * from xxl_job_lock where lock_name = 'schedule_lock' for update
 
 备注：整体来说，要是数据库读取到数据，那就是间隔1秒读一次；如果没有读到数据则每隔5秒读取一次。
 
+一次读取多少条数据的计算逻辑：
+
+```sql
+SELECT *
+FROM xxl_job_info AS t
+WHERE t.trigger_status = 1 and t.trigger_next_time <=  #{maxNextTime}
+ORDER BY id ASC
+LIMIT #{pagesize}
+```
+
+- pagesize = treadpool-size * trigger-qps (each trigger cost 50ms, qps = 1000/50 = 20)  
+- treadpool-size=200+100 ，那就是一次查询最大6000条
+- fast线程池200（阻塞队列1000），slow线程池100（阻塞队列2000）；默认添加到fast，当发现jobid的调度耗时（超过500ms），之后该jobid的调度放到slow中进行；
+- trigger-qps ：each trigger cost 50ms  这里的耗时是线程池中的线程一次调度的耗时，主要集中在一次rpc远程调用的耗时；
+
 ##### 2、timewheel调度触发任务
 
 private volatile static Map<Integer, List<Integer>> ringData = new ConcurrentHashMap<>();
@@ -654,6 +680,187 @@ public String route(int jobId, List<String> addressList) {
 ## 8、故障转移ExecutorRouteFailover
 
 ## 9、忙碌转移ExecutorRouteBusyover
+
+
+# 5、执行器的注册
+
+```sql
+CREATE TABLE `xxl_job_registry` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `registry_group` varchar(50) NOT NULL,
+  `registry_key` varchar(255) NOT NULL,
+  `registry_value` varchar(255) NOT NULL,
+  `update_time` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `i_g_k_v` (`registry_group`,`registry_key`,`registry_value`)
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4;
+
+
+CREATE TABLE `xxl_job_group` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `app_name` varchar(64) NOT NULL COMMENT '执行器AppName',
+  `title` varchar(12) NOT NULL COMMENT '执行器名称',
+  `order` int(11) NOT NULL DEFAULT '0' COMMENT '排序',
+  `address_type` tinyint(4) NOT NULL DEFAULT '0' COMMENT '执行器地址类型：0=自动注册、1=手动录入',
+  `address_list` varchar(512) DEFAULT NULL COMMENT '执行器地址列表，多地址逗号分隔',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4;
+```
+备注：xxl_job_registry（这里针对一个执行器部署多个会出现多条数据）是执行器直接进行注册修改的表，而xxl_job_group是有后台线程对表xxl_job_registry信息处理后生成给前端直接使用的表；
+
+
+## 1、执行器的注册
+
+```sql
+UPDATE xxl_job_registry
+SET `update_time` = #{updateTime}
+WHERE `registry_group` = #{registryGroup}
+  AND `registry_key` = #{registryKey}
+  AND `registry_value` = #{registryValue}
+
+  
+INSERT INTO xxl_job_registry( `registry_group` , `registry_key` , `registry_value`, `update_time`)
+	VALUES( #{registryGroup}  , #{registryKey} , #{registryValue}, #{updateTime})
+```
+
+	
+首先基于注册信息尝试更新时间戳，之前不存在的时候进行数据插入操作
+
+
+
+## 2、执行器注册移除
+
+```sql
+DELETE FROM xxl_job_registry
+WHERE registry_group = #{registryGroup}
+	AND registry_key = #{registryKey}
+	AND registry_value = #{registryValue}
+```
+
+	
+	
+## 3、JobRegistryMonitorHelper后台线程对执行器的注册信息进行更新(依据执行器注册的心跳间隔时间执行一次30秒一次)
+
+逻辑：首先从xxl_job_group拿到自动注册（address_type=0）的执行器列表，再从xxl_job_registry中拿到服务注册列表，然后更新xxl_job_group中执行器在线IP。
+
+
+### 1、从xxl_job_group拿到自动注册（address_type=0）的执行器列表；
+
+```sql
+SELECT *
+FROM xxl_job_group AS t
+WHERE t.address_type = #{addressType}
+ORDER BY t.order ASC
+```
+
+### 2、从xxl_job_registry中获取3倍心跳（90秒）没有进行心跳更新的，然后进行删除
+
+```xml
+SELECT t.id
+FROM xxl_job_registry AS t
+WHERE t.update_time < DATE_ADD(#{nowTime},INTERVAL -#{timeout} SECOND)
+
+对查询结果不为空时进行删除
+DELETE FROM xxl_job_registry
+WHERE id in
+<foreach collection="ids" item="item" open="(" close=")" separator="," >
+	#{item}
+</foreach>
+```
+
+### 3、查询表xxl_job_registry近90秒内有更新的注册信息
+
+```sql
+SELECT *
+FROM xxl_job_registry AS t
+WHERE t.update_time  >  DATE_ADD(#{nowTime},INTERVAL -#{timeout} SECOND)
+```
+
+这里针对一个执行器启动多个实例，会出现多条记录，这里需要把同一个执行器的IP进行合并然后存入表xxl_job_group的字段address_list中；
+
+```sql
+UPDATE xxl_job_group
+SET `app_name` = #{appName},
+	`title` = #{title},
+	`order` = #{order},
+	`address_type` = #{addressType},
+	`address_list` = #{addressList}
+WHERE id = #{id}
+
+```
+
+[问题：xxl_job_group中失效的信息什么时候进行清理？]
+
+上面更新逻辑是遍历自动进行注册group，使用执行器的名字去找最新的注册信息，如果一个执行器的服务长时间不进行注册会会在group对应的机器列表中设置为空。
+
+
+
+# 6、任务的失败重试和报警逻辑
+
+```sql
+CREATE TABLE `xxl_job_log` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `job_group` int(11) NOT NULL COMMENT '执行器主键ID',
+  `job_id` int(11) NOT NULL COMMENT '任务，主键ID',
+  `executor_address` varchar(255) DEFAULT NULL COMMENT '执行器地址，本次执行的地址',
+  `executor_handler` varchar(255) DEFAULT NULL COMMENT '执行器任务handler',
+  `executor_param` varchar(512) DEFAULT NULL COMMENT '执行器任务参数',
+  `executor_sharding_param` varchar(20) DEFAULT NULL COMMENT '执行器任务分片参数，格式如 1/2',
+  `executor_fail_retry_count` int(11) NOT NULL DEFAULT '0' COMMENT '失败重试次数',
+  `trigger_time` datetime DEFAULT NULL COMMENT '调度-时间',
+  `trigger_code` int(11) NOT NULL COMMENT '调度-结果',
+  `trigger_msg` text COMMENT '调度-日志',
+  `handle_time` datetime DEFAULT NULL COMMENT '执行-时间',
+  `handle_code` int(11) NOT NULL COMMENT '执行-状态',
+  `handle_msg` text COMMENT '执行-日志',
+  `alarm_status` tinyint(4) NOT NULL DEFAULT '0' COMMENT '告警状态：0-默认、1-无需告警、2-告警成功、3-告警失败',
+  PRIMARY KEY (`id`),
+  KEY `I_trigger_time` (`trigger_time`),
+  KEY `I_handle_code` (`handle_code`)
+) ENGINE=InnoDB AUTO_INCREMENT=130805 DEFAULT CHARSET=utf8mb4;
+```
+
+基于执行日志的状态来判断任务是否执行成功。这里分为两个阶段：调用阶段的失败和执行阶段的失败。
+
+
+## 1、查询失败的任务
+
+```sql
+SELECT id FROM `xxl_job_log`
+WHERE !(
+	(trigger_code in (0, 200) and handle_code = 0)
+	OR
+	(handle_code = 200)
+)
+AND `alarm_status` = 0
+ORDER BY id ASC
+LIMIT #{pagesize}
+```
+
+备注：pagesize=1000，alarm_status=0表示这条日志还没有被处理
+		
+非失败任务的逻辑：
+- 1、handle_code = 200 表示执行成功；
+- 2、trigger_code in (0, 200) and handle_code = 0  其中，trigger_code=0表示没有开始调度，200表的调用成功并且handle_code = 0表示还没开始执行
+
+
+## 2、锁定日志
+
+```sql
+UPDATE xxl_job_log
+		SET
+			`alarm_status` = #{newAlarmStatus}
+		WHERE `id`= #{logId} AND `alarm_status` = #{oldAlarmStatus}
+```
+
+备注：这个oldAlarmStatus=0更新为1，表示这条错误日志在处理中别人不进行处理。如果更新失败说明被被人处理了直接跳过即可：
+
+
+## 3、基于日志id找到jobid，然后查询出具体的job配置信息，查看是否配置失败重试然后进行失败重试
+
+失败重试会新生成一条日志，和原始日志的差异在于失败重试的次数-1，这样经过这里处理一次会把alarm_status=-1状态变成非锁定状态alarm_status=1或者2、3中的一个
+
+备注：不在在原来的日志中进行重试次数的更改
 
 
 

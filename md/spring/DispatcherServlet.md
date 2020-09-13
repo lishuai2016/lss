@@ -1,30 +1,38 @@
----
-title: DispatcherServlet
-categories: 
-- spring
-tags:
----
 
-# DispatcherServlet核心类
+<!-- TOC -->
+
+- [springmvc核心类](#springmvc核心类)
+    - [1、核心组件](#1核心组件)
+    - [2、整个servlet的处理流程：](#2整个servlet的处理流程)
+    - [3、doDispatch()核心逻辑](#3dodispatch核心逻辑)
+    - [4、DispatcherServlet核心代码](#4dispatcherservlet核心代码)
+        - [1、DispatcherType](#1dispatchertype)
+
+<!-- /TOC -->
+
+# springmvc核心类
 
 ## 1、核心组件
-前端控制器（DispatcherServlet：类）：接收请求，响应结果，相当于电脑的CPU。
-处理器映射器（HandlerMapping：接口）：根据URL去查找处理器
-处理器（Handler：对象object）：（需要程序员去写代码处理逻辑的）
-处理器适配器（HandlerAdapter：接口）：会把处理器包装成适配器，这样就可以支持多种类型的处理器，类比笔记本的适配器（适配器模式的应用）
-视图解析器（ViewResovler：接口）：进行视图解析，多返回的字符串，进行处理，可以解析成对应的页面
+
+- 前端控制器（DispatcherServlet：类）：接收请求，响应结果，相当于电脑的CPU。
+- 处理器映射器（HandlerMapping：接口）：根据URL去查找处理器
+- 处理器（Handler：对象object）：（需要程序员去写代码处理逻辑的）
+- 处理器适配器（HandlerAdapter：接口）：会把处理器包装成适配器，这样就可以支持多种类型的处理器，类比笔记本的适配器（适配器模式的应用）
+- 视图解析器（ViewResovler：接口）：进行视图解析，多返回的字符串，进行处理，可以解析成对应的页面
 
 ## 2、整个servlet的处理流程：
+
 service()--->processRequest()--->doservice()--->doDispatch()
 
 
 
 ## 3、doDispatch()核心逻辑
-1、从HandlerMapping接口的实现类中通过request，找到:handler（HandlerExecutionChain类型：包含拦截器）
-2、从HandlerAdapter接口通过上面handler找到适配器对象:ha
-3、调用handler.applyPreHandle，实现调用拦截器栈中的所有前置拦截器
-4、调用ha.handle处理具体的业务逻辑
-5、调用handler.applyPostHandle，实现调用拦截器栈中的所有后置拦截器
+
+- 1、从HandlerMapping接口的实现类中通过request，找到:handler（HandlerExecutionChain类型：包含拦截器）
+- 2、从HandlerAdapter接口通过上面handler找到适配器对象:ha
+- 3、调用handler.applyPreHandle，实现调用拦截器栈中的所有前置拦截器
+- 4、调用ha.handle处理具体的业务逻辑
+- 5、调用handler.applyPostHandle，实现调用拦截器栈中的所有后置拦截器
 
 
 
@@ -184,3 +192,37 @@ protected void doDispatch(HttpServletRequest request, HttpServletResponse respon
 
 }
 ```
+
+
+### 1、DispatcherType
+
+HTTP请求的分发类型
+
+```java
+public enum DispatcherType {//请求转发的类型
+    FORWARD,  
+    INCLUDE,
+    REQUEST,
+    ASYNC,
+    ERROR
+}
+```
+
+
+
+
+有时一个请求需要多个Servlet协作才能完成，所以需要在一个Servlet跳到另一个Servlet！一个请求跨多个Servlet，需要使用转发和包含。
+
+- 1、请求转发：由下一个Servlet完成响应体！当前Servlet可以设置响应头！（留头不留体）
+- 2、请求包含：由两个Servlet共同完成响应体！（留头又留体）
+
+无论是请求转发还是请求包含，都在一个请求范围内！使用同一个request和response！
+
+
+
+> 请求转发和重定向的区别：
+- 1、请求转发是一个请求一次响应，而重定向是两次请求两次响应。
+- 2、请求转发地址不变化，而重定向会显示后一个请求的地址
+- 3、请求转发只能转发到本项目其它Servlet，而重定向不只能重定向到本项目的其它Servlet，还能定向到其它项目
+- 4、请求转发是服务端行为，只需给出转发的Servlet路径，而重定向需要给出requestURI，既包含项目名！
+
