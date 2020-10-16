@@ -1,25 +1,6 @@
 
 
-<!-- TOC -->
-
-- [1、core包核心类[包含读取appid和metaserver地址]](#1core包核心类包含读取appid和metaserver地址)
-    - [1、MetaDomainConsts提供了获取用户配置的metaserver地址](#1metadomainconsts提供了获取用户配置的metaserver地址)
-    - [2、MetaServerProvider](#2metaserverprovider)
-    - [3、jdk的spi加载类](#3jdk的spi加载类)
-    - [4、Foundation抽象类](#4foundation抽象类)
-- [2、metaserver服务](#2metaserver服务)
-- [3、client](#3client)
-    - [1、读取appid和metaserver配置信息](#1读取appid和metaserver配置信息)
-    - [2、ConfigService使用配置服务的入口](#2configservice使用配置服务的入口)
-    - [3、ConfigManager](#3configmanager)
-    - [4、ConfigFactory](#4configfactory)
-    - [5、ConfigRepository](#5configrepository)
-        - [1、RemoteConfigRepository](#1remoteconfigrepository)
-        - [2、LocalFileConfigRepository](#2localfileconfigrepository)
-        - [3、PropertiesCompatibleFileConfigRepository](#3propertiescompatiblefileconfigrepository)
-    - [6、RepositoryChangeListener仓库监听器](#6repositorychangelistener仓库监听器)
-
-<!-- /TOC -->
+<!-- TOC -->autoauto- [1、core包核心类[包含读取appid和metaserver地址]](#1core包核心类包含读取appid和metaserver地址)auto    - [1、MetaDomainConsts提供了获取用户配置的metaserver地址](#1metadomainconsts提供了获取用户配置的metaserver地址)auto    - [2、MetaServerProvider](#2metaserverprovider)auto    - [3、jdk的spi加载类](#3jdk的spi加载类)auto    - [4、Foundation抽象类](#4foundation抽象类)auto- [2、metaserver服务](#2metaserver服务)auto- [3、client](#3client)auto    - [1、读取appid和metaserver配置信息](#1读取appid和metaserver配置信息)auto    - [2、ConfigService使用配置服务的入口](#2configservice使用配置服务的入口)auto    - [3、ConfigManager](#3configmanager)auto    - [4、ConfigFactory](#4configfactory)auto    - [5、ConfigRepository](#5configrepository)auto        - [1、RemoteConfigRepository](#1remoteconfigrepository)auto        - [2、LocalFileConfigRepository](#2localfileconfigrepository)auto        - [3、PropertiesCompatibleFileConfigRepository](#3propertiescompatiblefileconfigrepository)auto    - [6、RepositoryChangeListener仓库监听器](#6repositorychangelistener仓库监听器)auto- [通过使用流程分析源码](#通过使用流程分析源码)autoauto<!-- /TOC -->
 
 
 > 模块依赖图
@@ -345,3 +326,106 @@ RemoteConfigRepository包含核心类：
 
 
 1、client端如何通过配置的meta server地址找到服务的？
+
+
+
+
+# 通过使用流程分析源码
+
+
+
+```java
+interface ConfigFactory {//创建配置对象和配置文件对象接口，默认实现DefaultConfigFactory
+Config create(String namespace);//默认实现DefaultConfig
+//基于文件格式不同构建Properties\xml\json\yaml\yam\txt对应的对象
+ConfigFile createConfigFile(String namespace, ConfigFileFormat configFileFormat);
+}
+```
+
+ConfigFile和Config构建的必须参数namespace（名称）和ConfigRepository（数据来源）
+
+
+
+
+
+
+
+- 1、ConfigService.getConfig(namesapce)
+- 2、DefaultConfigManager#getConfig(namesapce)创建configFile\Config并缓存（维护namespace和configFile\Config映射）
+  - 2.1、获取配置工厂：DefaultConfigFactoryManager#getFactory(namesapce)（从ConfigRegistry注册管理或者本地缓存创建的DefaultConfigFactory）
+  - 2.2、ConfigFactory功能：创建configFile\Config（ConfigFactoryManager维护namespace和ConfigFactory映射）
+  - 2.3、通过ConfigFactory创建Config对象，获取ConfigFile类似；（在这里实例化仓库对象，比如new RemoteConfigRepository(namespace)）
+
+备注：
+
+- 1、每一个namespace一一对应一个configFile\Config、一个ConfigFactory、一个RemoteConfigRepository；
+- 2、设计方面：工厂模式创建对象、每一层都有一个对应的manager缓存
+
+
+
+
+> 问题
+
+- 1、如何从远端拉取数据并更新的流程；
+- 2、本地缓存文件；
+- 3、长轮训机制；
+- 4、spring整合时数据属性更新问题；
+- 5、直接HTTP方式访问的区别；
+
+## RemoteConfigRepository初始化
+
+
+
+
+在初始化构造函数的时候会去远端拉取配置信息并更新到本地；
+
+
+
+this.trySync(); //抽象类中的方法，对应模板方法sync()--->loadApolloConfig()
+this.schedulePeriodicRefresh();//定时刷新，也是调用trySync()
+this.scheduleLongPollingRefresh();//长轮询刷新，最后还是调用trySync()
+
+
+
+配置内容的统一抽象：
+```java
+public class ApolloConfig {
+  private String appId;//唯一标识
+  private String cluster;//默认default
+  private String namespaceName;//配置文件的名称
+  private Map<String, String> configurations;//key-value键值对，如果是文本文件则会存在一个content的key，value是文本对应的字符串
+  private String releaseKey;//版本
+```
+
+
+
+
+url格式：
+
+http://10.181.163.3:80/configs/apollo-test/default/application.yaml?ip=10.12.223.239&messages=%7B%22details%22%3A%7B%22apollo-test%2Bdefault%2Bapplication.yaml%22%3A413%7D%7D&releaseKey=20200923105324-0d93bc58cc899b0a
+
+
+http://10.181.163.3:80/configs/apollo-test/default/application?ip=10.12.223.239
+
+
+当仓库从远端通过HTTP拉取过了的信息会封装成ApolloConfig对象。后面会把ApolloConfig中的Map<String, String> configurations转换为Properties向下传递。
+
+在仓库层通过原子引用AtomicReference<ApolloConfig>缓存，在配置对象config层通过原子引用AtomicReference<Properties>缓存，每一层都会把本地缓存和通过HTTP拉下下来最新的数据对比，只有发现不一致的时候才会下发数据（调用对应的监听器实现）
+
+
+
+
+数据流向：
+
+ConfigRepository中数据有更新会触发注册到其上的监听器RepositoryChangeListener，一般这个监听器的实现类是config/cofigfile的实现类，完成第一层数据的下发（仓库到配置对象）；在config/cofigfile中也可以添加对应配置对象变化的监听器，这里的监听器是开放给用户来使用的，如果有数据跟新会在这里进行第二层的数据下发（配置对象到用户的代码）
+
+
+
+## LocalFileConfigRepository
+
+
+
+
+- this.setLocalCacheDir(findLocalCacheDir(), false);
+- this.setUpstreamRepository(upstream);
+- this.trySync();

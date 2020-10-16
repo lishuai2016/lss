@@ -1,11 +1,5 @@
 
-<!-- TOC -->
-
-- [1、概念](#1概念)
-- [2、工作原理](#2工作原理)
-- [参考](#参考)
-
-<!-- /TOC -->
+<!-- TOC -->autoauto- [1、概念](#1概念)auto- [2、工作原理](#2工作原理)auto- [参考](#参考)autoauto<!-- /TOC -->
 
 > 问题
 
@@ -30,6 +24,15 @@
 
 
 `Oozie工作流任务调度器`
+
+oozie本质就是一个作业协调工具（底层原理是通过将xml语言转换成mapreduce程序来做，但只是在集中map端做处理，避免shuffle的过程。）
+
+![](../../pic/2020-09-15/2020-09-15-20-29-15.png)
+
+Oozie的工作流必须是一个有向无环图，实际上Oozie就相当于Hadoop的一个客户端，当用户需要执行多个关联的MR任务时，只需要将MR执行顺序写入workflow.xml，然后使用Oozie提交本次任务，Oozie会托管此任务流。
+
+
+
 
 
 # 1、概念
@@ -62,7 +65,7 @@ Oozie is a scalable, reliable and extensible system.
 
 
 
-
+![](../../pic/2020-09-15/2020-09-15-20-23-56.png)
 
 
 
@@ -90,11 +93,11 @@ Oozie is a scalable, reliable and extensible system.
 
 - [oozie官网](https://oozie.apache.org/)
 
+- [什么是Oozie——大数据任务调度框架](https://blog.csdn.net/TNTZS666/article/details/81915820)
 
+- [Oozie基础入门](https://blog.csdn.net/weixin_39198774/article/details/79412726)
 
-
-
-
+- [Oozie 简介](https://www.infoq.cn/article/introductionOozie)
 
 
 

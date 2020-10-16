@@ -1,30 +1,7 @@
 
 
 
-<!-- TOC -->
-
-- [1、yarn简介](#1yarn简介)
-- [2、YARN架构](#2yarn架构)
-    - [1. ResourceManager](#1-resourcemanager)
-    - [2. NodeManager](#2-nodemanager)
-    - [3. ApplicationMaster](#3-applicationmaster)
-    - [4. Contain](#4-contain)
-- [3、YARN工作原理简述](#3yarn工作原理简述)
-- [4、YARN工作原理详述](#4yarn工作原理详述)
-    - [1. 作业提交](#1-作业提交)
-    - [2. 作业初始化](#2-作业初始化)
-    - [3. 任务分配](#3-任务分配)
-    - [4. 任务运行](#4-任务运行)
-    - [5. 进度和状态更新](#5-进度和状态更新)
-    - [6. 作业完成](#6-作业完成)
-- [5、提交作业到YARN上运行](#5提交作业到yarn上运行)
-- [6、调度策略](#6调度策略)
-    - [1、FIFO](#1fifo)
-    - [2、Capacity Scheduler](#2capacity-scheduler)
-    - [3、Fair Scheduler](#3fair-scheduler)
-    - [参考资料](#参考资料)
-
-<!-- /TOC -->
+<!-- TOC -->autoauto- [1、yarn简介](#1yarn简介)auto- [2、YARN架构](#2yarn架构)auto    - [1. ResourceManager](#1-resourcemanager)auto    - [2. NodeManager](#2-nodemanager)auto    - [3. ApplicationMaster](#3-applicationmaster)auto    - [4. Contain](#4-contain)auto- [3、YARN工作原理简述](#3yarn工作原理简述)auto- [4、YARN工作原理详述](#4yarn工作原理详述)auto    - [1. 作业提交](#1-作业提交)auto    - [2. 作业初始化](#2-作业初始化)auto    - [3. 任务分配](#3-任务分配)auto    - [4. 任务运行](#4-任务运行)auto    - [5. 进度和状态更新](#5-进度和状态更新)auto    - [6. 作业完成](#6-作业完成)auto- [5、提交作业到YARN上运行](#5提交作业到yarn上运行)auto- [6、调度策略](#6调度策略)auto    - [1、FIFO](#1fifo)auto    - [2、Capacity Scheduler](#2capacity-scheduler)auto    - [3、Fair Scheduler](#3fair-scheduler)auto    - [参考资料](#参考资料)autoauto<!-- /TOC -->
 
 
 
@@ -220,9 +197,21 @@ Fair Scheduler（公平调度器）：Fair 针对不同的应用（也可以为�
 
 
 
+# ApplicationMaster在mr和spark任务中代表什么
+
+- MRAppMaster是mapreduce的ApplicationMaster实现
+
+- 由于 Spark 与 MapReduce 相比，是一种 DAG 计算框架，包含一系列的计算任务，比较特殊，所以 Spark 自己实现了一个`集中式调度器  Driver`，用来调用作业内部的计算任务。申请到的资源可以看成是申请分区资源，在该分区内，所有资源由 Driver 全权使用，以客户端方式提交的 Spark on Yarn 这种方式可以看成是 Driver 首先在资源管理和调度系统中注册为框架调度器（二级调度器），接收到需要得资源后，再开始进行作业调度。那么这种方式可以认为是一种曲线救国的双层调度实现方式，这个我们后面会讲到。
 
 
+- [MapReduce与Yarn 的详细工作流程分析](http://www.spring4all.com/article/16913)
+- [Hadoop系列之yarn架构与流程浅析](https://www.jianshu.com/p/254d01eaf884)
+- [Apache Hadoop YARN 的架构与运行流程](http://www.justdojava.com/2019/07/01/yarn/)
+- [Yarn的基础介绍以及job的提交流程](https://blog.51cto.com/14048416/2342195)
 
+- [Spark运行原理](https://www.jianshu.com/p/de8261ced9fd)
+- [Spark中yarn模式两种提交任务方式](https://www.shuzhiduo.com/A/RnJWw69OJq/)
+- [Spark中yarn模式两种提交任务方式](https://www.cnblogs.com/LHWorldBlog/p/8414342.html)
 
 
 
@@ -256,3 +245,5 @@ Fair Scheduler（公平调度器）：Fair 针对不同的应用（也可以为�
 - [Yarn工作原理浅析](https://blog.csdn.net/weixin_41867777/article/details/80422867)
 
 - [Yarn资源调度器](https://www.jianshu.com/p/87793a1dab6e)
+
+- [Hadoop之YARN及运行流程](https://blog.csdn.net/qianshangding0708/article/details/47000159)
