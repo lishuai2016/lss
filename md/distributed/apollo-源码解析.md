@@ -1,11 +1,33 @@
 
 
-<!-- TOC -->autoauto- [1、core包核心类[包含读取appid和metaserver地址]](#1core包核心类包含读取appid和metaserver地址)auto    - [1、MetaDomainConsts提供了获取用户配置的metaserver地址](#1metadomainconsts提供了获取用户配置的metaserver地址)auto    - [2、MetaServerProvider](#2metaserverprovider)auto    - [3、jdk的spi加载类](#3jdk的spi加载类)auto    - [4、Foundation抽象类](#4foundation抽象类)auto- [2、metaserver服务](#2metaserver服务)auto- [3、client](#3client)auto    - [1、读取appid和metaserver配置信息](#1读取appid和metaserver配置信息)auto    - [2、ConfigService使用配置服务的入口](#2configservice使用配置服务的入口)auto    - [3、ConfigManager](#3configmanager)auto    - [4、ConfigFactory](#4configfactory)auto    - [5、ConfigRepository](#5configrepository)auto        - [1、RemoteConfigRepository](#1remoteconfigrepository)auto        - [2、LocalFileConfigRepository](#2localfileconfigrepository)auto        - [3、PropertiesCompatibleFileConfigRepository](#3propertiescompatiblefileconfigrepository)auto    - [6、RepositoryChangeListener仓库监听器](#6repositorychangelistener仓库监听器)auto- [通过使用流程分析源码](#通过使用流程分析源码)autoauto<!-- /TOC -->
+<!-- TOC -->
+
+- [1、core包核心类[包含读取appid和metaserver地址]](#1core包核心类包含读取appid和metaserver地址)
+    - [1、MetaDomainConsts提供了获取用户配置的metaserver地址](#1metadomainconsts提供了获取用户配置的metaserver地址)
+    - [2、MetaServerProvider](#2metaserverprovider)
+    - [3、jdk的spi加载类](#3jdk的spi加载类)
+    - [4、Foundation抽象类](#4foundation抽象类)
+- [2、metaserver服务](#2metaserver服务)
+- [3、client](#3client)
+    - [1、读取appid和metaserver配置信息](#1读取appid和metaserver配置信息)
+    - [2、ConfigService使用配置服务的入口](#2configservice使用配置服务的入口)
+    - [3、ConfigManager](#3configmanager)
+    - [4、ConfigFactory](#4configfactory)
+    - [5、ConfigRepository](#5configrepository)
+        - [1、RemoteConfigRepository](#1remoteconfigrepository)
+        - [2、LocalFileConfigRepository](#2localfileconfigrepository)
+        - [3、PropertiesCompatibleFileConfigRepository](#3propertiescompatiblefileconfigrepository)
+    - [6、RepositoryChangeListener仓库监听器](#6repositorychangelistener仓库监听器)
+- [通过使用流程分析源码](#通过使用流程分析源码)
+    - [RemoteConfigRepository初始化](#remoteconfigrepository初始化)
+    - [LocalFileConfigRepository](#localfileconfigrepository)
+
+<!-- /TOC -->
 
 
 > 模块依赖图
 
-![](../../pic/2020-04-08-21-58-54.png)
+![](../../pic/2020-10-10/2020-10-10-21-19-49.png)
 
 
 
@@ -18,7 +40,7 @@
 
 ## 1、MetaDomainConsts提供了获取用户配置的metaserver地址
 
-![](../../pic/2020-04-08-22-03-53.png)
+![](../../pic/2020-10-10/2020-10-10-21-27-25.png)
 
 具体的解析过程交给MetaServerProvider接口的实现类去实现具体的加载，该接口采用spi机制，可以有多个实现类。同时该接口实现了order接口，可以自定义多个实现类加载顺序，order值越小，优先级越高，当从高优先级的实现类加载到地址后就不再使用低优先级实现类去加载了。
 
@@ -40,15 +62,16 @@ int getOrder();//自定义优先级，越小优先级越高
 ```
 
 
-![](../../pic/2020-04-08-22-19-08.png)
+![](../../pic/2020-10-10/2020-10-10-21-27-58.png)
 
 
 有两个实现类：
 
-- 1、DefaultMetaServerProvider：最低优先级，在core包，portal service服务会使用metaserver找到可以使用的admin服务；[请求：metaserver域名/services/admin获取]
+- 1、DefaultMetaServerProvider：order=0，默认高优先级，在core包，portal service服务会使用metaserver找到可以使用的admin服务；[请求：metaserver域名/services/admin获取]
 
-- 2、LegacyMetaServerProvider：在client包，使用client包时候按照加载这个实现类，我们接入的应该通过这个metaserver找config service服务地址；[请求：metaserver域名/services/config获取]
+- 2、LegacyMetaServerProvider：order=Integer.MAX_VALUE-1，，在client包，使用client包时候按照加载这个实现类，我们接入的应该通过这个metaserver找config service服务地址；[请求：metaserver域名/services/config获取]
 
+备注：order的值越小优先级越高，在获取的时候如果通过spi获取发现有多个实现类，只有前面高优先级的类有返回值了，后面低优先级的类就得不到执行。`因为client包继承core包，所以使用了client包会有上面两个实现类，优先从DefaultMetaServerProvider获取，如果获取不到才会继续尝试从LegacyMetaServerProvider获取`
 
 ## 3、jdk的spi加载类
 
@@ -115,7 +138,7 @@ public class ServiceBootstrap {
 
 - 3、ProviderManager：默认实现DefaultProviderManager，统一管理接口Provider的实现类
 
-![](../../pic/2020-04-08-23-00-20.png)
+![](../../pic/2020-10-10/2020-10-10-21-37-02.png)
 
 这里主要用来加载一些配置文件信息
 
@@ -133,15 +156,15 @@ public interface ProviderManager {
 
 全部为静态方法和属性，可以直接引用并使用，不需要实例化。这个类的功能主要用来暴露ProviderManager接口的中的方法的
 
-对外提供如下的四个方法：
+对外提供如下的3个方法：
 
-![](../../pic/2020-04-08-23-09-12.png)
+![](../../pic/2020-10-10/2020-10-10-21-39-36.png)
 
 - 1、DefaultApplicationProvider：Load per-application configuration, like app id, from classpath://META-INF/app.properties[核心：加载应用的唯一标识]
 
-- 2、DefaultNetworkProvider：Load network parameters
+- 2、DefaultNetworkProvider：Load network parameters[本机的HostAddress和HostName]
 
-- 3、DefaultServerProvider：Load environment (fat, fws, uat, prod ...) and dc, from /opt/settings/server.properties, JVM property and/or OS environment variables.
+- 3、DefaultServerProvider：Load environment (fat, fws, uat, prod ...) and dc, from /opt/settings/server.properties, JVM property and/or OS environment variables.[获取环境变量env、idc等信息]
 
 
 # 2、metaserver服务
@@ -150,7 +173,7 @@ public interface ProviderManager {
 
 主要逻辑在DiscoveryService类中
 
-![](../../pic/2020-04-08-22-35-48.png)
+![](../../pic/2020-10-10/2020-10-10-21-41-44.png)
 
 有三个方法：
 
@@ -233,7 +256,7 @@ public interface ConfigFactory {
 
 ## 5、ConfigRepository
 
-![](../../pic/2020-04-08-23-40-44.png)
+![](../../pic/2020-10-10/2020-10-10-21-45-02.png)
 
 ```java
 public interface ConfigRepository {
@@ -276,7 +299,7 @@ AbstractConfigRepository实现监听器的添加、移除、触发，已经定�
 
 ## 6、RepositoryChangeListener仓库监听器
 
-![](../../pic/2020-04-08-23-45-58.png)
+![](../../pic/2020-10-10/2020-10-10-21-45-48.png)
 
 ```java
 public interface RepositoryChangeListener {
@@ -326,7 +349,6 @@ RemoteConfigRepository包含核心类：
 
 
 1、client端如何通过配置的meta server地址找到服务的？
-
 
 
 
