@@ -34,7 +34,7 @@
 [高并发分布式系统唯一ID生成](http://intheworld.win/2017/10/21/%E9%AB%98%E5%B9%B6%E5%8F%91%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E5%94%AF%E4%B8%80id%E7%94%9F%E6%88%90/)
 [各大互联网公司架构演进之路汇总](https://mp.weixin.qq.com/s/esYjHTHHcY-UMmvl9JqYXw)
 [九种排序算法的可视化及比较](https://zhuanlan.zhihu.com/p/34421623)
-[Kafka史上最详细原理总结](https://blog.csdn.net/YChenFeng/article/details/74980531)
+
 [MySQL 表锁和行锁机制](https://segmentfault.com/a/1190000012773157)
 [四张图带你了解Tomcat系统架构--让面试官颤抖的Tomcat回答系列！](https://blog.csdn.net/xlgen157387/article/details/79006434)
 [每个开发者应该了解的 10 个 Linux 命令](https://zhuanlan.zhihu.com/p/30020741)
