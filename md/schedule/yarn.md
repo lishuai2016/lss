@@ -1,9 +1,31 @@
 
 
 
-<!-- TOC -->autoauto- [1、yarn简介](#1yarn简介)auto- [2、YARN架构](#2yarn架构)auto    - [1. ResourceManager](#1-resourcemanager)auto    - [2. NodeManager](#2-nodemanager)auto    - [3. ApplicationMaster](#3-applicationmaster)auto    - [4. Contain](#4-contain)auto- [3、YARN工作原理简述](#3yarn工作原理简述)auto- [4、YARN工作原理详述](#4yarn工作原理详述)auto    - [1. 作业提交](#1-作业提交)auto    - [2. 作业初始化](#2-作业初始化)auto    - [3. 任务分配](#3-任务分配)auto    - [4. 任务运行](#4-任务运行)auto    - [5. 进度和状态更新](#5-进度和状态更新)auto    - [6. 作业完成](#6-作业完成)auto- [5、提交作业到YARN上运行](#5提交作业到yarn上运行)auto- [6、调度策略](#6调度策略)auto    - [1、FIFO](#1fifo)auto    - [2、Capacity Scheduler](#2capacity-scheduler)auto    - [3、Fair Scheduler](#3fair-scheduler)auto    - [参考资料](#参考资料)autoauto<!-- /TOC -->
+<!-- TOC -->
 
+- [1、yarn简介](#1yarn简介)
+- [2、YARN架构](#2yarn架构)
+    - [1. ResourceManager](#1-resourcemanager)
+    - [2. NodeManager](#2-nodemanager)
+    - [3. ApplicationMaster](#3-applicationmaster)
+    - [4. Contain](#4-contain)
+- [3、YARN工作原理简述](#3yarn工作原理简述)
+- [4、YARN工作原理详述](#4yarn工作原理详述)
+    - [1. 作业提交](#1-作业提交)
+    - [2. 作业初始化](#2-作业初始化)
+    - [3. 任务分配](#3-任务分配)
+    - [4. 任务运行](#4-任务运行)
+    - [5. 进度和状态更新](#5-进度和状态更新)
+    - [6. 作业完成](#6-作业完成)
+- [5、提交作业到YARN上运行](#5提交作业到yarn上运行)
+- [6、调度策略](#6调度策略)
+    - [1、FIFO](#1fifo)
+    - [2、Capacity Scheduler](#2capacity-scheduler)
+    - [3、Fair Scheduler](#3fair-scheduler)
+- [ApplicationMaster在mr和spark任务中代表什么](#applicationmaster在mr和spark任务中代表什么)
+    - [参考资料](#参考资料)
 
+<!-- /TOC -->
 
 
 

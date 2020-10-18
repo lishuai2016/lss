@@ -1,4 +1,115 @@
 
+
+
+
+
+[Linux IO磁盘篇整理小记](https://mp.weixin.qq.com/s/VoJcHMSQTywWUBvmPT2iKg)
+
+[Java 和操作系统交互细节](https://mp.weixin.qq.com/s/fr1cc_s080A325EuHhym2w)
+
+[文件句柄？文件描述符？](https://mp.weixin.qq.com/s/s8RxsKJrXuQlRsEQB2GYgw)
+
+[简述Linux虚拟内存管理](https://mp.weixin.qq.com/s/-waQDC29PYYkx_c9x_2uHQ)
+
+[maven 项目生命周期与构建原理](https://blog.csdn.net/luanlouis/article/details/50492163)
+
+[系统设计](https://github.com/donnemartin/system-design-primer/blob/master/README-zh-Hans.md)
+
+- [Github进行fork后如何与原仓库同步](https://github.com/selfteaching/the-craft-of-selfteaching/issues/67)
+
+[disconf分布式配置中心](https://disconf.readthedocs.io/zh_CN/latest/config/src/client-config.html#disconf-client)
+
+[TCP/IP协议详解---概述](http://www.cnblogs.com/nexiyi/p/3377908.html)
+[TCP/IP协议详解](https://www.oschina.net/question/565065_86328)
+[TCP和UDP报头格式各字段解释](http://www.it165.net/network/html/201306/1106.html)
+
+[一个http请求的详细过程](http://www.cnblogs.com/yuteng/articles/1904215.html)
+
+[四种常见的 POST 提交数据方式](https://imququ.com/post/four-ways-to-post-data-in-http.html)
+
+[一网打尽消息队列在大型分布式系统中的实战精髓](https://dbaplus.cn/news-21-991-1.html)
+
+网关
+http://www.yunweipai.com/archives/23653.html
+https://juejin.im/post/5bda67f26fb9a0223e4da611
+
+- [平衡二叉树、B树、B+树、B*树 理解其中一种你就都明白了](https://zhuanlan.zhihu.com/p/27700617)
+
+[什么是AES算法？（整合版）](https://mp.weixin.qq.com/s/Q99jGZOUGFiM-ZTnkWWYew)
+
+
+最佳路径寻找算法[动态规划]
+[什么是A*寻路算法？](https://mp.weixin.qq.com/s/FYKR_1yBKR4GJTn0fFIuAA)
+
+[漫画：什么是Base64算法？](https://mp.weixin.qq.com/s/jZJVSt8SSZvFzSkAoTILvw)
+
+[漫画：什么是 HTTPS 协议？](https://mp.weixin.qq.com/s/1ojSrhc9LZV8zlX6YblMtA)
+
+- [漫画：什么是MD5算法？](https://mp.weixin.qq.com/s/k-ToL356asWtS_PN30Z17w)
+
+[漫画：什么是SHA系列算法？](https://mp.weixin.qq.com/s/RIZuU8gmM_-HyK5DBr4pmw)
+和md5类似的信息摘要生成算法
+
+
+[漫画：什么是加密算法？](https://mp.weixin.qq.com/s/mszEors5SK2rThqXF79PuQ)
+
+[字典树的原理以及Java实现](http://www.blogchong.com/?mod=pad&act=view&id=86)
+[从Trie树（字典树）谈到后缀树（10.28修订）](https://blog.csdn.net/v_july_v/article/details/6897097)
+
+[漫画：什么是布隆算法？](https://mp.weixin.qq.com/s/RmR5XmLeMvk35vgjwxANFQ)
+[拜托，面试官别问我「布隆」了](https://mp.weixin.qq.com/s/QxKshmR75RBmYQkz4eU9dg)
+[拜托，面试官别问我「布隆」了（修订补充版）](https://mp.weixin.qq.com/s/F021ZS4QmK0-q8hyeayiFQ)
+
+
+其原理是：
+通过增加多个hash函数，使得在bitmap情况下hash误判的概率降低
+
+
+[蓄水池抽样算法（Reservoir Sampling）](https://www.jianshu.com/p/7a9ea6ece2af)  
+
+[漫画：什么是计数排序？](https://mp.weixin.qq.com/s/WGqndkwLlzyVOHOdGK7X4Q)
+
+[大数相乘、大数相加、大数相减Java版本](https://blog.csdn.net/lichong_87/article/details/6860329)
+
+
+1、大数相乘，其结果的长度不超过len1+len2，第i位和第j位的成绩放在（i+j）位中，然后在考虑进位的情况
+2、大数相加和大数相乘类似，考虑进位的处理
+3、大数相减考虑借位的问题
+
+
+[漫画：如何破解MD5算法？](https://mp.weixin.qq.com/s/fLwwu9Ol21SfMRBzA_OyQg)
+
+[漫画：深度优先遍历 和 广度优先遍历](https://mp.weixin.qq.com/s/WA5hQXkcACIarcdVnRnuiw)
+
+[辗转相除法是什么鬼？](https://mp.weixin.qq.com/s/7n0O86dDV7_4SpZtFa41Hw)
+
+求最大公约数的几种求法
+
+> 重点：
+
+所有slf4j的实现，在提供的jar包路径下，一定是有"org/slf4j/impl/StaticLoggerBinder.class"存在的
+
+- [Java日志框架：slf4j作用及其实现原理](https://www.cnblogs.com/xrq730/p/8619156.html)
+
+- [Java日志框架：logback详解](https://www.cnblogs.com/xrq730/p/8628945.html)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # 1、工作流
 
 ## 1、Azkaban
