@@ -93,7 +93,7 @@ https://juejin.im/post/5bda67f26fb9a0223e4da611
 
 - [Java日志框架：logback详解](https://www.cnblogs.com/xrq730/p/8628945.html)
 
-
+- [轻量级BI工具Superset的搭建与使用](https://www.jianshu.com/p/b02fcea7eb5b)
 
 
 
