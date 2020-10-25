@@ -3,6 +3,39 @@
 
 
 
+20201022
+
+es
+
+[99.999%，提升ElasticSearch稳定性的秘密](https://zhuanlan.zhihu.com/p/172013683)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 [Linux IO磁盘篇整理小记](https://mp.weixin.qq.com/s/VoJcHMSQTywWUBvmPT2iKg)
 
 [Java 和操作系统交互细节](https://mp.weixin.qq.com/s/fr1cc_s080A325EuHhym2w)

@@ -1,11 +1,6 @@
----
-title: Tomcat启动过程加载web.xml中的servlet和Spring容器
-categories: 
-- tomcat
-tags:
----
 
-#Tomcat启动过程(以及加载web.xml中的servlet和Spring容器)
+
+# Tomcat启动过程(以及加载web.xml中的servlet和Spring容器)
 
 在 Servlet API 中有一个 ServletContextListener 接口，它能够监听 ServletContext 对象的生命周期，实际上就是监听 Web 应用的生命周期。
 
