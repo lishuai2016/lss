@@ -1,1 +1,0 @@
-[Java注释@interface的用法【转】](https://blog.csdn.net/liuwenbo0920/article/details/7290586/)
