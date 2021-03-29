@@ -9,11 +9,13 @@
 示例 1:
 
 输入: 1->2->3->3->4->4->5
+
 输出: 1->2->5
 
 示例 2:
 
 输入: 1->1->1->2->3
+
 输出: 2->3
 
 ## 思路
@@ -28,7 +30,39 @@
 
 ## 题解
 
+```java
+class Solution {
+    public ListNode deleteDuplicates(ListNode head) {
+        //思路1：使用一个set记录有重复的数字，遍历列表删除，时间复杂度和空间复杂度N
+        //思路2：外层循环遍历节点时，内层循环来判断这个节点是否需要被删除，如果有需要删除的节点，就把相关节点全部删除
+        ListNode dummy = new ListNode();
+        dummy.next = head;
+        //定义一个当前节点的前置节点
+        ListNode pre = dummy;
+        while (head != null) {
+            ListNode next = head.next;
+            if (next != null) {
+                //说明与head值相等的节点都需要被删除，找到第一个值和head节点不相同的节点
+                if (head.val == next.val) {
+                    while(next != null && next.val == head.val) {
+                        next = next.next;
+                    }
+                    pre.next = next;
+                    head = next;
+                } else {
+                    //注意这里的前置节点要先赋值
+                    pre = head;
+                    head = next;
+                }
+            } else {
+                break;
+            }
+        }
+        return dummy.next;
+    }
+}
 
+```
 
 ### 思路1
 

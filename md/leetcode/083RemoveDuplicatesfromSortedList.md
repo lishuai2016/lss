@@ -24,24 +24,19 @@
 
 
 ## 题解
-```
-/**
- * Definition for singly-linked list.
- * public class ListNode {
- *     int val;
- *     ListNode next;
- *     ListNode(int x) { val = x; }
- * }
- */
+```java
 class Solution {
     public ListNode deleteDuplicates(ListNode head) {
+        //思路：遍历发现当前节点和后继节点重复，修改删除下一节点
         ListNode cur = head;
-        while (cur != null && cur.next != null) {
-           if (cur.val == cur.next.val) {
-               cur.next = cur.next.next;
-           } else {
-               cur = cur.next;
-           }
+        while (cur != null) {
+            ListNode next = cur.next;
+            //当前节点的值和后继节点的值一样，删除当前节点的后继节点
+            if (next != null && next.val == cur.val) {
+               cur.next = next.next;
+            } else {
+                cur = next;
+            }
         }
         return head;
     }

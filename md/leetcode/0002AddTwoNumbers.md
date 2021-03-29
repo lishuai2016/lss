@@ -145,3 +145,46 @@ class Solution {
 }
 ```
 
+```java
+class Solution {
+    public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
+        //边界值检查
+        if (l1 == null) {
+            return l2;
+        }
+        if (l2 == null) {
+            return l1;
+        }
+        ListNode dummy = new ListNode();
+        ListNode p = dummy;
+        //表示进位
+        int temp = 0;
+        ListNode p1 = l1;
+        ListNode p2 = l2;
+        //终止条件，需要考虑进位情况
+        while(p1 != null || p2 != null || temp > 0) {
+            int sum = temp;
+            if (p1 != null) {
+                sum += p1.val;
+                p1 = p1.next;
+            }
+            if (p2 != null) {
+                sum += p2.val;
+                p2 =p2.next;
+            }
+            if (sum >= 10) {
+                sum -= 10;
+                temp = 1;
+            } else {
+                temp = 0;
+            }
+
+            ListNode node = new ListNode(sum);
+            p.next = node;
+            p = node;
+        }
+
+        return dummy.next;
+    }
+}
+```
