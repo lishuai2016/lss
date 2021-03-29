@@ -17,7 +17,6 @@
         - [1、bin文件](#1bin文件)
         - [2、mrk文件](#2mrk文件)
         - [3、检索过程](#3检索过程)
-- [05、Distribute查询](#05distribute查询)
 - [06、ClickHouse为什么快](#06clickhouse为什么快)
     - [1、IO层面](#1io层面)
     - [2、指令集层面](#2指令集层面)
@@ -66,7 +65,7 @@ CH Cluster 无中心化，即负责数据获取和汇总计算，导致节点压
 
 
 
-基本表结构都是集群中每台机器存放一个本地表，两台机器互为备份，通过zookeeper同步数据，通过分布表可以分发或者搜集整个集群上所有本地表的数据。分布表本身是一个视图，数据存在本地表中
+基本表结构都是集群中每台机器存放一个本地表，两台机器互为备份，通过zookeeper同步数据，通过分布表可以分发或者搜集整个集群上所有本地表的数据。`分布表本身是一个视图，数据存在本地表中`
 
 - 分布表写：分布表会指定cluster（包含哪些机器）、shard key（没有指定就是random）和对应的本地表，对插入的一条数据，根据shard key判断应该属于哪个shard，然后再该shard中挑选一个可用的机器，向该机器的本地表插入数据，同一shard的机器会通过zookeeper同步数据。
 
@@ -519,50 +518,6 @@ a	0
 
 
 
-# 05、Distribute查询
-
-- [ClickHouse Distribute 引擎深度解读](http://clickhouse.com.cn/topic/5a3e768d2141c2917483557e)
-
-什么是分发引擎？
-
-分发引擎在业务用来建立all表时使用。
-
-all表的概念可以理解为一个视图。
-
-在all表上读数据时CH数据流程如下：
-
-- 1.分发SQL到对应多个shard上执行SQL
-
-- 2.执行SQL后的数据的中间结果发送到主server上
-
-- 3.数据再次汇总过滤。
-
-what happened when reading from distributed table
-
-如下图所示：
-
-![](../../pic/2020-04-23-22-11-44.png)
-
-![](../../pic/2020-04-23-22-12-10.png)
-
-在各shard执行SQL是自动且并行化的，无需参数配置或手动干预。读数时随机选择某个shard的replica进行读书。如果表有索引优先使用索引。
-
-分布式引擎接受参数有：服务器配置文件中的集群名称，远程数据库的名称，远程表的名称以及（可选）分片键。例：
-Distributed(logs, default, hits[, sharding_key])
-
-以上面的建表引擎作为例子。
-
-参数说明：
-
-- logs : 服务器配置文件中的群集名称。rpm包装好后的配置文件在/etc/clickhouse-server/config.xml
-
-- default: 库名，也可以使用常量表达式来代替数据库名称，如currentDatabase()
-
-- hits:表名
-
-- sharding_key：路由算法
-
-上面引擎的隐喻是：定位logs集群,从位于群集中每个服务器上的“default.hits”表中读取数据。数据将在远程服务器部分处理。例如，对于使用GROUP BY的查询，将在远程服务器上聚合数据，聚合函数的中间状态将发送到请求者服务器。数据将会进一步聚合。
 
 
 
